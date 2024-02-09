@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\specie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Custom\ResultResponse;
 
 class SpecieController extends Controller
@@ -38,26 +39,36 @@ class SpecieController extends Controller
     public function store(Request $request)
     {
         //
-        $this->validateSpecie($request);    
+         
         $resultResponse=new ResultResponse();
           try{
-               $newSpecie=new specie([
-    
+              
+            
+            $mensaje=  $this->validateSpecie($request); 
+            //   
+             if($mensaje['estado']){ 
+
+             
+                $newSpecie=new specie([
                 'name'=>$request->get('name'),
                 'descripcion'=>$request->get('descripcion'),
                 'photo'=>$request->get('photo'),
-    
-
                ]);
-
-
 
                $newSpecie->save();
                $resultResponse->setData($newSpecie);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
-            
-             }catch(\Exeption $e){
+          
+            }else{
+
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage($mensaje['errores']);
+
+            }  
+
+
+             }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
              }
@@ -81,9 +92,9 @@ class SpecieController extends Controller
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
 
             
-             }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+             }catch(\Exception $e){
+                $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+                $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
              }
 
              return response()->json($resultResponse);
@@ -107,10 +118,16 @@ class SpecieController extends Controller
      {
       
            //
-           $this->validateSpecie($request);
+           
            $resultResponse=new ResultResponse();
            try{
               
+
+            $mensaje=  $this->validateSpecie($request); 
+            //   
+             if($mensaje['estado']){ 
+
+
                $specie=specie::findOrFail($id);
                $specie->name=$request->get('name');
                $specie->descripcion=$request->get('descripcion');
@@ -120,10 +137,19 @@ class SpecieController extends Controller
                $resultResponse->setData($specie);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+
+            }else{
+
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage($mensaje['errores']);
+
+            }
+
              
-              }catch(\Exeption $e){
-                 $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-                 $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+              }catch(\Exception $e){
+                $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+                $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
               }
    
               return response()->json($resultResponse);
@@ -151,9 +177,9 @@ class SpecieController extends Controller
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -162,6 +188,35 @@ class SpecieController extends Controller
 
 
     private function validateSpecie(Request $request){
+
+        $rules=[
+            'name'=>'required|string',
+            'descripcion'=>'required|string',
+            'photo'=>'required|string',
+                         
+       ];
+
+        $messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'integer' => 'El campo :attribute debe ser entero.',
+            'exists' => 'El valor del campo :attribute es invalido.',
+           
+       ];
+
+       $validator = Validator::make($request->all(), $rules,$messages);
+
+       if ($validator->fails()) {
+        return ['estado'=>false,
+              'errores'=>$validator->errors()->all()
+             ];
+       }else{
+        
+         return ['estado'=>true,
+                 ];
+
+       }
+
+
 
     }
 }

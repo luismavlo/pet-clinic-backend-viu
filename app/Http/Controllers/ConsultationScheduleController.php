@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\consultation_schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Custom\ResultResponse;
 
 class ConsultationScheduleController extends Controller
@@ -14,7 +15,7 @@ class ConsultationScheduleController extends Controller
     public function index()
     {
         //
-        $consultation_schedule=consultation_schedule::all();
+        $consultation_schedule=consultation_schedule::paginate(2);
         $resultResponse=new ResultResponse();
         $resultResponse->setData($consultation_schedule);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -37,26 +38,43 @@ class ConsultationScheduleController extends Controller
     public function store(Request $request)
     {
         //
-        $this->validateconsultation_schedulet($request);    
+          
         $resultResponse=new ResultResponse();
           try{
+
+             
+
+            $mensaje=$this->validateConsultation_schedulet($request);
+            //   
+             if($mensaje['estado']){ 
+
                $newConsultation_schedule=new consultation_schedule([
-                'day_of_week'=>$request->get('day_of_week'),
-                'start_time'=>$request->get('start_time'),
-                'end_time'=>$request->get('end_time'),
+                'start_date'=>$request->get('start_date'),
+                'end_date'=>$request->get('end_date'),
                 'appointment_duration'=>$request->get('appointment_duration'),
-                'month'=>$request->get('month'),
-                'year'=>$request->get('year'),
-                'status'=>$request->get('status'),
+                'start_hour'=>$request->get('start_hour'),
+                'shift_duration'=>$request->get('shift_duration'),
+                'end_hour'=>$request->get('end_hour'),
+                'employee_id'=>$request->get('employee_id'),
+
 
                ]);
 
+            
                $newConsultation_schedule->save();
                $resultResponse->setData($newConsultation_schedule);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+            }else{
+
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage($mensaje['errores']);
+
+            }
+
             
-             }catch(\Exeption $e){
+             }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
              }
@@ -79,9 +97,9 @@ class ConsultationScheduleController extends Controller
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-            $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -102,28 +120,28 @@ class ConsultationScheduleController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $this->validateClient($request);
+      
         $resultResponse=new ResultResponse();
         try{
            
-            $consultation_schedule=consultation_schedule::findOrFail($id);
-            $consultation_schedule->day_of_week=$request->get('day_of_week');
-            $consultation_schedule->start_time=$request->get('start_time');
-            $consultation_schedule->end_time=$request->get('end_time');
-            $consultation_schedule->appointment_duration=$request->get('appointment_duration');
-            $consultation_schedule->month=$request->get('month');
-            $consultation_schedule->year=$request->get('year');
-            $consultation_schedule->status=$request->get('status');
-     
-           
-            $consultation_schedule->save();               
-            $resultResponse->setData($consultation_schedule);
-            $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
-            $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+            $mensaje=$this->validateConsultation_schedulet($request);
+            //   
+             if($mensaje['estado']){ 
+
+         
+
+        }else{
+
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage($mensaje['errores']);
+
+        }
+
           
            }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -146,11 +164,56 @@ class ConsultationScheduleController extends Controller
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
     }
+
+
+
+    private function validateConsultation_schedulet(Request $request){
+     
+        $rules=[
+            
+            'start_date'=>'required|date',
+            'end_date'=>'required|date',
+            'appointment_duration'=>'required|integer',
+            'start_hour'=>'required|string',
+            'shift_duration'=>'required|integer',
+            'end_hour'=>'required|string',
+            'employee_id'=>'required|integer|exists:employee,id',           
+
+
+       ];
+
+        $messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'integer' => 'El campo :attribute debe ser entero.',
+            'exists' => 'El valor del campo :attribute es invalido.',
+           
+       ];
+
+       $validator = Validator::make($request->all(), $rules,$messages);
+
+       if ($validator->fails()) {
+        return ['estado'=>false,
+              'errores'=>$validator->errors()->all()
+             ];
+       }else{
+        
+         return ['estado'=>true,
+                 ];
+
+       }
+
+
+
+    }
+
+
+
+
 }

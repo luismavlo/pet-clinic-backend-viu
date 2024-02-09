@@ -31,7 +31,7 @@ class ResultResponse
 
             public function setStatusCode($statusCode): void
             {
-               $this->statuscode=$statusCode;
+               $this->statusCode=$statusCode;
             }
 
                public function getMessage()

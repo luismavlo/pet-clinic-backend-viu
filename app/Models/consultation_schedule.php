@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class consultation_schedule extends Model
 {
-    protected $fillable=['day_of_week','start_time','end_time','appointment_duration','month','year','status'];
+    protected $fillable=['start_date','end_date','appointment_duration','start_hour','shift_duration','end_hour','employee_id'];
     use HasFactory;
+
+
+
+
+    public function employees()
+    {
+        return $this->belongsTo(employee::class,'employee_id','id');
+    }
+
+
 }

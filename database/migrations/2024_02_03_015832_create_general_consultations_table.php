@@ -24,7 +24,7 @@ return new class extends Migration
             $table->integer('breathing_frequency');
             $table->integer('body_temperatura');
             $table->string('history_clinic_url');
-            $table->integer('schedule_id');
+            $table->date('appointment_date');
             $table->rememberToken();
             $table->timestamps();
         });

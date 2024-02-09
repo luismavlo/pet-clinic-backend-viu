@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Custom\ResultResponse;
 
 class EmployeeController extends Controller
@@ -14,7 +15,7 @@ class EmployeeController extends Controller
     public function index()
     {
         //
-        $employee=employee::all();
+        $employee=employee::paginate(2);
         $resultResponse=new ResultResponse();
         $resultResponse->setData($employee);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -38,9 +39,15 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         //
-        $this->validateClient($request);    
+       
         $resultResponse=new ResultResponse();
           try{
+
+            $mensaje=$this->validateEmployee($request); 
+            //   
+             if($mensaje['estado']){ 
+
+
                $newEmployee=new employee([
     
                 'occupation'=>$request->get('occupation'),
@@ -57,8 +64,17 @@ class EmployeeController extends Controller
                $resultResponse->setData($newEmployee);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+            }else{
+
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage($mensaje['errores']);
+
+            }
+
+
+
             
-             }catch(\Exeption $e){
+             }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
              }
@@ -83,9 +99,9 @@ class EmployeeController extends Controller
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-            $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -105,10 +121,15 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $this->validateEmployee($request);
+       
         $resultResponse=new ResultResponse();
         try{
            
+            $mensaje=$this->validateEmployee($request); 
+            //   
+             if($mensaje['estado']){ 
+
+
             $employee=employee::findOrFail($id);
             $employee->occupation=$request->get('occupation');
             $employee->gross_salary=$request->get('gross_salary');
@@ -121,10 +142,20 @@ class EmployeeController extends Controller
             $resultResponse->setData($employee);
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+
+
+        }else{
+
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage($mensaje['errores']);
+
+        }
+
+
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -147,9 +178,9 @@ class EmployeeController extends Controller
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -158,6 +189,46 @@ class EmployeeController extends Controller
 
     private function validateEmployee(Request $request){
 
+
+        $rules=[
+
+            'occupation'=>'required|string',
+            'gross_salary'=>'required|float',
+            'email'=>'required|string',
+            'password'=>'required|string',
+            'phone'=>'required|string',
+            'user_id'=>'required|integer|exists:users,id',
+                                    
+       ];
+
+        $messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'integer' => 'El campo :attribute debe ser entero.',
+            'exists' => 'El valor del campo :attribute es invalido.',
+           
+       ];
+
+       $validator = Validator::make($request->all(), $rules,$messages);
+
+       if ($validator->fails()) {
+        return ['estado'=>false,
+              'errores'=>$validator->errors()->all()
+             ];
+       }else{
+        
+         return ['estado'=>true,
+                 ];
+
+       }
+
+
+
+
+
+
     }
+
+
+
 
 }
