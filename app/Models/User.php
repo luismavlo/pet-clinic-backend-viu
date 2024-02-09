@@ -19,8 +19,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'surname',
+        'dni',
+        'genre',
         'email',
-        'password',
+        'photo',
+        
     ];
 
     /**
@@ -29,8 +33,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+       'remember_token',
     ];
 
     /**
@@ -38,8 +41,16 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+ 
+
+
+     public function employees(){
+        return $this->hasMany(employee::class);
+        }
+
+    public function clients(){
+            return $this->hasMany(client::class);
+        }
+
+
 }

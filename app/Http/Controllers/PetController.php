@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\pet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Custom\ResultResponse;
 
 class PetController extends Controller
@@ -14,7 +15,8 @@ class PetController extends Controller
     public function index()
     {
         //
-        $pet=pet::all();
+       
+        $pet=pet::paginate(2);
         $resultResponse=new ResultResponse();
         $resultResponse->setData($pet);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -37,9 +39,14 @@ class PetController extends Controller
     public function store(Request $request)
     {
         //
-        $this->validatePet($request);    
+        
         $resultResponse=new ResultResponse();
           try{
+
+
+            $mensaje=$this->validatePet($request); 
+            //   
+             if($mensaje['estado']){ 
                $newPet=new pet([
     
                 'client_id'=>$request->get('client_id'),
@@ -49,18 +56,23 @@ class PetController extends Controller
                 'race'=>$request->get('race'),
                 'specie_id'=>$request->get('specie_id'),
     
-    
-
                ]);
-
-
 
                $newPet->save();
                $resultResponse->setData($newPet);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
-            
-             }catch(\Exeption $e){
+            }else{
+
+                $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+                $resultResponse->setMessage($mensaje['errores']);
+
+            }
+
+
+
+
+             }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
              }
@@ -84,13 +96,13 @@ class PetController extends Controller
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-            $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
-           return response()->json($resultResponse);
-
+           return response()->json($resultResponse,$resultResponse->getStatusCode());
+        
 
     }
 
@@ -108,10 +120,15 @@ class PetController extends Controller
     public function update(Request $request, $id)
     {
         //
-        $this->validatePet($request);
+       
         $resultResponse=new ResultResponse();
         try{
            
+            $mensaje=$this->validatePet($request); 
+            //   
+             if($mensaje['estado']){ 
+          
+
             $pet=pet::findOrFail($id);
             $pet->client_id=$request->get('client_id');
             $pet->photo=$request->get('photo');
@@ -125,9 +142,19 @@ class PetController extends Controller
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+        }else{
+
+            $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
+            $resultResponse->setMessage($mensaje['errores']);
+
+        }
+
+
+
+
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
@@ -150,16 +177,53 @@ class PetController extends Controller
             $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
-           }catch(\Exeption $e){
-              $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUND_CODE);
-              $resultResponse->setMessage(ResultResponse::TXT__ELEMENT_NOT_FOUND_CODE);
+           }catch(\Exception $e){
+            $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
+            $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
 
            return response()->json($resultResponse);
     }
 
+   
     private function validatePet(Request $request){
 
+        $rules=[
+          
+            'client_id'=>'required|integer|exists:client,id',
+            'photo'=>'required|string',
+            'name'=>'required|string',
+            'birthdate'=>'required|date',
+            'race'=>'required|string',
+            'specie_id'=>'required|integer|exists:specie,id',
+                         
+       ];
+
+        $messages = [
+            'required' => 'El campo :attribute es requerido.',
+            'integer' => 'El campo :attribute debe ser entero.',
+            'exists' => 'El valor del campo :attribute es invalido.',
+           
+       ];
+
+       $validator = Validator::make($request->all(), $rules,$messages);
+
+       if ($validator->fails()) {
+        return ['estado'=>false,
+              'errores'=>$validator->errors()->all()
+             ];
+       }else{
+        
+         return ['estado'=>true,
+                 ];
+
+       }
+
+
+
+
     }
+
+
 
 }

@@ -9,4 +9,11 @@ class specie extends Model
 {
     protected $fillable=['name','descripcion','photo'];
     use HasFactory;
+
+
+    
+    public function pets(){
+        return $this->hasMany(pet::class);
+         }
+
 }

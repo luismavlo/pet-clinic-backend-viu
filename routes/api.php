@@ -29,7 +29,7 @@ Route::controller(SpecieController::class)->prefix('specie')->group(function(){
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -41,7 +41,7 @@ Route::controller(PetController::class)->prefix('pet')->group(function(){
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -53,7 +53,7 @@ Route::controller(ClientController::class)->prefix('client')->group(function(){
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -65,7 +65,7 @@ Route::controller(ConsultationScheduleController::class)->prefix('consultationsc
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -77,7 +77,7 @@ Route::controller(EmployeeController::class)->prefix('employee')->group(function
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -89,7 +89,7 @@ Route::controller(GeneralConsultationController::class)->prefix('generalconsulta
 
     Route::get('/','index');
     Route::post('/','store');
-    Route::post('/{id}','update');
+    Route::patch('/{id}','update');
     Route::put('/{id}','put');
     Route::get('/{id}','show');
     Route::delete('/{id}','destroy');
@@ -97,16 +97,5 @@ Route::controller(GeneralConsultationController::class)->prefix('generalconsulta
 
 });
 
-Route::controller(EmployeeSheduleController::class)->prefix('generalconsultation')->group(function(){
-
-    Route::get('/','index');
-    Route::post('/','store');
-    Route::post('/{id}','update');
-    Route::put('/{id}','put');
-    Route::get('/{id}','show');
-    Route::delete('/{id}','destroy');
-
-
-});
 
 

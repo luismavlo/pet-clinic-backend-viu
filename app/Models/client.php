@@ -9,4 +9,18 @@ class client extends Model
 {
     protected $fillable=['user_id','phone','email','password'];
     use HasFactory;
+
+    public function users()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+
+
+
+
+public function pets(){
+return $this->hasMany(pet::class);
+}
+
+
 }

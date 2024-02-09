@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('consultation_schedules', function (Blueprint $table) {
             $table->id();
-            $table->integer('day_of_week');
-            $table->date('start_time');
-            $table->date('end_time');
-            $table->string('appointment_duration');
-            $table->string('month');
-            $table->string('year');
-            $table->boolean('status');
+           
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->integer('appointment_duration');
+            $table->string('start_hour');
+            $table->integer('shift_duration');
+            $table->string('end_hour');
+            $table->integer('employee_id');
+           
             $table->rememberToken();
             $table->timestamps();
         });
