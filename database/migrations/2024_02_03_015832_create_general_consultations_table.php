@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('blood_pressure');
             $table->string('reason');
-            $table->integer('pet_id');
-            $table->integer('schenduling_by');
-            $table->integer('assigned_to');
+            $table->foreignId('pet_id')->constrained('pets')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('schenduling_by')->constrained('employees')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('assigned_to')->constrained('employees')->cascadeOnUpdate()->cascadeOnDelete();
             $table->integer('heart_rate');
             $table->string('observations');
             $table->integer('status');
