@@ -15,16 +15,15 @@ class PetController extends Controller
     public function index()
     {
         //
+        $pet = pet::with('specie','client')->paginate(10); 
        
-        $pet=pet::paginate(2);
         $resultResponse=new ResultResponse();
         $resultResponse->setData($pet);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
         $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
-      
         return response()->json($resultResponse);
+      
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -75,6 +74,7 @@ class PetController extends Controller
              }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+             
              }
 
              return response()->json($resultResponse);
@@ -91,7 +91,8 @@ class PetController extends Controller
         $resultResponse=new ResultResponse();
         try{
            
-             $pet=pet::findOrFail($id);
+           
+             $pet = Pet::with('specie', 'client')->findOrFail($id);
              $resultResponse->setData($pet);
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
@@ -190,12 +191,12 @@ class PetController extends Controller
 
         $rules=[
           
-            'client_id'=>'required|integer|exists:client,id',
+            'client_id'=>'required|integer|exists:clients,id',
             'photo'=>'required|string',
             'name'=>'required|string',
             'birthdate'=>'required|date',
             'race'=>'required|string',
-            'specie_id'=>'required|integer|exists:specie,id',
+            'specie_id'=>'required|integer|exists:species,id',
                          
        ];
 

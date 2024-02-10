@@ -15,7 +15,8 @@ class ConsultationScheduleController extends Controller
     public function index()
     {
         //
-        $consultation_schedule=consultation_schedule::paginate(2);
+        
+        $consultation_schedule = consultation_schedule::with('employees')->paginate(10); 
         $resultResponse=new ResultResponse();
         $resultResponse->setData($consultation_schedule);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -76,7 +77,8 @@ class ConsultationScheduleController extends Controller
             
              }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
-                $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+              //  $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+                $resultResponse->setMessage($e);
              }
 
              return response()->json($resultResponse);
@@ -92,14 +94,16 @@ class ConsultationScheduleController extends Controller
         $resultResponse=new ResultResponse();
         try{
            
-             $consultation_schedule=consultation_schedule::findOrFail($id);
-             $resultResponse->setData($client);
+            
+             $consultation_schedule = consultation_schedule::with('employees')->findOrFail($id);
+             $resultResponse->setData($consultation_schedule);
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
           
            }catch(\Exception $e){
             $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
+           
            }
 
            return response()->json($resultResponse);
@@ -129,7 +133,18 @@ class ConsultationScheduleController extends Controller
             //   
              if($mensaje['estado']){ 
 
-         
+                $consultation_schedule=consultation_schedule::findOrFail($id);
+                $consultation_schedule->start_date=$request->get('start_date');
+                $consultation_schedule->end_date=$request->get('end_date');
+                $consultation_schedule->appointment_duration=$request->get('appointment_duration');
+                $consultation_schedule->start_hour=$request->get('start_hour');
+                $consultation_schedule->shift_duration=$request->get('shift_duration');
+                $consultation_schedule->end_hour=$request->get('end_hour');
+                $consultation_schedule->employee_id=$request->get('employee_id');
+    
+                $consultation_schedule->save();               
+                $resultResponse->setData($consultation_schedule);
+    
 
         }else{
 
@@ -139,7 +154,7 @@ class ConsultationScheduleController extends Controller
         }
 
           
-           }catch(\Exeption $e){
+           }catch(\ExCeption $e){
             $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
            }
@@ -184,7 +199,7 @@ class ConsultationScheduleController extends Controller
             'start_hour'=>'required|string',
             'shift_duration'=>'required|integer',
             'end_hour'=>'required|string',
-            'employee_id'=>'required|integer|exists:employee,id',           
+            'employee_id'=>'required|integer|exists:employees,id',           
 
 
        ];

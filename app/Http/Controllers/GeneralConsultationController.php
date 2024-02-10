@@ -18,7 +18,8 @@ class GeneralConsultationController extends Controller
     public function index()
     {
         //
-        $general_consultation=general_consultation::all();
+       
+        $general_consultation = general_consultation::with('pets','employes_schenduling_by','medico')->paginate(10); 
         $resultResponse=new ResultResponse();
         $resultResponse->setData($general_consultation);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -105,8 +106,7 @@ class GeneralConsultationController extends Controller
         //
         $resultResponse=new ResultResponse();
         try{
-           
-             $general_consultation=general_consultation::findOrFail($id);
+             $general_consultation = general_consultation::with('pets','employes_schenduling_by','medico')->findOrFail($id); 
              $resultResponse->setData($general_consultation);
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);

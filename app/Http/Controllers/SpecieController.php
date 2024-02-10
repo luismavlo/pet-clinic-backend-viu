@@ -15,7 +15,7 @@ class SpecieController extends Controller
     public function index()
     {
         //
-        $species=specie::all();
+        $species=specie::paginate(2);
         $resultResponse=new ResultResponse();
         $resultResponse->setData($species);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);

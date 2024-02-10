@@ -17,8 +17,8 @@ return new class extends Migration
             $table->double('gross_salary',8,2);
             $table->string('email');
             $table->string('password');
-            $table->string('photo');
-            $table->integer('user_id');
+            $table->string('phone');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

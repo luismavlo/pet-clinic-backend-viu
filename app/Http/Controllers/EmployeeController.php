@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\User;
 use App\Models\employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +15,8 @@ class EmployeeController extends Controller
     public function index()
     {
         //
-        $employee=employee::paginate(2);
+      
+        $employee = employee::with('users')->paginate(10); 
         $resultResponse=new ResultResponse();
         $resultResponse->setData($employee);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
@@ -47,20 +48,27 @@ class EmployeeController extends Controller
             //   
              if($mensaje['estado']){ 
 
+                $newUser=new User([
+                    'name'=>$request->get('name'),
+                    'surname'=>$request->get('surname'),
+                    'dni'=>$request->get('dni'),
+                    'genre'=>$request->get('genre'),
+                    'photo'=>$request->get('photo'),
+                     ]);
 
-               $newEmployee=new employee([
-    
-                'occupation'=>$request->get('occupation'),
-                'gross_salary'=>$request->get('gross_salary'),
-                'email'=>$request->get('email'),
-                'password'=>$request->get('password'),
-                'phone'=>$request->get('phone'),
-                'user_id'=>$request->get('user_id'),
-               
-      
-               ]);
+                $newUser->save(); 
 
-               $newEmployee->save();
+                
+                $newEmployee=new employee([
+                    'occupation'=>$request->get('occupation'),
+                     'gross_salary'=>$request->get('gross_salary'),
+                     'email'=>$request->get('email'),
+                     'password'=>$request->get('password'),
+                     'phone'=>$request->get('phone'),
+                     'user_id'=>$newUser->id,
+                     ]);
+
+                $newEmployee->save();
                $resultResponse->setData($newEmployee);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
@@ -77,6 +85,7 @@ class EmployeeController extends Controller
              }catch(\Exception $e){
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
                 $resultResponse->setMessage(ResultResponse::TXT_ERROR_CODE);
+              
              }
 
              return response()->json($resultResponse);
@@ -94,7 +103,7 @@ class EmployeeController extends Controller
         $resultResponse=new ResultResponse();
         try{
            
-             $employee=employee::findOrFail($id);
+             $employee = employee::with('users')->findOrFail($id);
              $resultResponse->setData($employee);
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
@@ -135,8 +144,8 @@ class EmployeeController extends Controller
             $employee->gross_salary=$request->get('gross_salary');
             $employee->email=$request->get('email');
             $employee->password=$request->get('password');
-            $employee->race=$request->get('phone');
-            $employee->specie_id=$request->get('user_id');
+            $employee->phone=$request->get('phone');
+            $employee->user_id=$request->get('user_id');
 
             $employee->save();               
             $resultResponse->setData($employee);
@@ -156,6 +165,7 @@ class EmployeeController extends Controller
            }catch(\Exception $e){
             $resultResponse->setStatusCode(ResultResponse::ERROR_ELEMENT_NOT_FOUNT_CODE);
             $resultResponse->setMessage(ResultResponse::TXT_ERROR_ELEMENT_NOT_FOUNT_CODE);
+          
            }
 
            return response()->json($resultResponse);
@@ -192,12 +202,18 @@ class EmployeeController extends Controller
 
         $rules=[
 
+            'name'=>'required|string',
+            'surname'=>'required|string',
+            'dni'=>'required|string',
+            'genre'=>'required|string',
+            'photo'=>'required|string',
+         
             'occupation'=>'required|string',
-            'gross_salary'=>'required|float',
+            'gross_salary'=>'required',
             'email'=>'required|string',
             'password'=>'required|string',
             'phone'=>'required|string',
-            'user_id'=>'required|integer|exists:users,id',
+           
                                     
        ];
 

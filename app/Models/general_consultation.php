@@ -12,12 +12,12 @@ class general_consultation extends Model
 
 
 
-    public function users()
+    public function pets()
     {
-        return $this->belongsTo(User::class,'user_id','id');
+        return $this->belongsTo(pet::class,'pet_id','id');
     }
 
-    public function employes()
+    public function employes_schenduling_by()
     {
         return $this->belongsTo(employee::class,'schenduling_by','id');
     }

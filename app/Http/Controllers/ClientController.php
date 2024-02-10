@@ -16,13 +16,16 @@ class ClientController extends Controller
     public function index()
     {
         //
-        $client=client::paginate(2);
+      //  $client=client::paginate(2);
+        $client = client::with('users')->paginate(10); 
         $resultResponse=new ResultResponse();
         $resultResponse->setData($client);
         $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
         $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
       
         return response()->json($resultResponse);
+
+        
 
     }
 
@@ -49,8 +52,21 @@ class ClientController extends Controller
             //   
              if($mensaje['estado']){ 
 
+
+                $newUser=new User([
+                    'name'=>$request->get('name'),
+                    'surname'=>$request->get('surname'),
+                    'dni'=>$request->get('dni'),
+                    'genre'=>$request->get('genre'),
+                    'photo'=>$request->get('photo'),
+                     ]);
+
+                $newUser->save(); 
+
+
+
                 $newClient=new client([
-                'user_id'=>$request->get('user_id'),
+                'user_id'=>$newUser->id,
                 'phone'=>$request->get('phone'),
                 'email'=>$request->get('email'),
                 'password'=>$request->get('password'),               
@@ -60,6 +76,10 @@ class ClientController extends Controller
                $resultResponse->setData($newClient);
                $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
                $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
+          
+          
+          
+          
             }else{
 
                 $resultResponse->setStatusCode(ResultResponse::ERROR_CODE);
@@ -87,7 +107,8 @@ class ClientController extends Controller
         $resultResponse=new ResultResponse();
         try{
            
-             $client=client::findOrFail($id);
+           
+            $client = client::with('users')->findOrFail($id);
              $resultResponse->setData($client);
              $resultResponse->setStatusCode(ResultResponse::SUCCESS_CODE);
              $resultResponse->setMessage(ResultResponse::TXT_SUCCESS_CODE);
@@ -179,7 +200,13 @@ class ClientController extends Controller
     private function validateClient(Request $request){
      
         $rules=[
-            'user_id'=>'required|integer|exists:users,id',
+
+            'name'=>'required|string',
+            'surname'=>'required|string',
+            'dni'=>'required|string',
+            'genre'=>'required|string',
+            'photo'=>'required|string',
+           
             'phone'=>'required|string',
             'email'=>'required|string',
             'password'=>'required|string',

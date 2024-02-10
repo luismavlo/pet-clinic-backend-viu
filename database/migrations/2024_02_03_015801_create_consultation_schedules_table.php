@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('start_hour');
             $table->integer('shift_duration');
             $table->string('end_hour');
-            $table->integer('employee_id');
-           
+            $table->foreignId('employee_id')->constrained('employees')->cascadeOnUpdate()->cascadeOnDelete();
+                      
             $table->rememberToken();
             $table->timestamps();
         });
